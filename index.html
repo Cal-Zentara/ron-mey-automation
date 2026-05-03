@@ -227,19 +227,23 @@
 
     <div class="q">
       <p class="q-lbl">What types of work do you shoot? Pick all that apply.</p>
-      <div class="choices" data-key="shoot_types" data-type="multi">
+      <div class="choices" data-key="shoot_types" data-type="multi" data-other="shoot-other">
         <button class="cb" data-value="Fashion editorial">Fashion editorial</button>
         <button class="cb" data-value="Commercial / brand">Commercial / brand</button>
         <button class="cb" data-value="Portrait / headshots">Portrait / headshots</button>
         <button class="cb" data-value="Campaign / lookbook">Campaign / lookbook</button>
         <button class="cb" data-value="Events">Events</button>
         <button class="cb" data-value="BTS / content">BTS / content</button>
+        <button class="cb" data-value="Other">Something else</button>
+      </div>
+      <div class="cond" id="shoot-other">
+        <input type="text" data-key="shoot_types_other" placeholder="What else do you shoot?" />
       </div>
     </div>
 
     <div class="q">
       <p class="q-lbl">How did you hear about Cal?</p>
-      <div class="choices" data-key="referral_source" data-type="multi">
+      <div class="choices" data-key="referral_source" data-type="multi" data-other="referral-other">
         <button class="cb" data-value="Referral">Referral</button>
         <button class="cb" data-value="TikTok">TikTok</button>
         <button class="cb" data-value="Instagram">Instagram</button>
@@ -247,6 +251,9 @@
         <button class="cb" data-value="Google">Google</button>
         <button class="cb" data-value="Cold outreach">Cold outreach</button>
         <button class="cb" data-value="Other">Other</button>
+      </div>
+      <div class="cond" id="referral-other">
+        <input type="text" data-key="referral_source_other" placeholder="Where did you find Cal?" />
       </div>
     </div>
 
@@ -347,35 +354,46 @@
 
     <div class="q">
       <p class="q-lbl">How do clients receive their final images? Pick all that apply.</p>
-      <div class="choices" data-key="delivery_method" data-type="multi">
+      <div class="choices" data-key="delivery_method" data-type="multi" data-other="delivery-other">
         <button class="cb" data-value="Pixieset">Pixieset</button>
         <button class="cb" data-value="Google Drive / Dropbox">Google Drive / Dropbox</button>
         <button class="cb" data-value="WeTransfer">WeTransfer</button>
         <button class="cb" data-value="ShootProof / CloudSpot">ShootProof / CloudSpot</button>
         <button class="cb" data-value="Direct email">Direct email</button>
-        <button class="cb" data-value="Something else">Something else</button>
+        <button class="cb" data-value="Other">Something else</button>
+      </div>
+      <div class="cond" id="delivery-other">
+        <input type="text" data-key="delivery_method_other" placeholder="How do you send galleries?" />
       </div>
     </div>
 
     <div class="q">
       <p class="q-lbl">How do you handle contracts?</p>
-      <div class="choices" data-key="contracts" data-type="multi">
+      <div class="choices" data-key="contracts" data-type="multi" data-other="contracts-other">
         <button class="cb" data-value="HoneyBook / Dubsado">HoneyBook / Dubsado</button>
         <button class="cb" data-value="DocuSign / HelloSign">DocuSign / HelloSign</button>
         <button class="cb" data-value="PDF via email">PDF via email</button>
         <button class="cb" data-value="No formal contract">No formal contract</button>
         <button class="cb" data-value="Agent / team handles it">Agent / team handles it</button>
+        <button class="cb" data-value="Other">Something else</button>
+      </div>
+      <div class="cond" id="contracts-other">
+        <input type="text" data-key="contracts_other" placeholder="What do you use for contracts?" />
       </div>
     </div>
 
     <div class="q">
       <p class="q-lbl">How do you invoice and get paid?</p>
-      <div class="choices" data-key="invoicing" data-type="multi">
+      <div class="choices" data-key="invoicing" data-type="multi" data-other="invoicing-other">
         <button class="cb" data-value="HoneyBook / Dubsado">HoneyBook / Dubsado</button>
         <button class="cb" data-value="QuickBooks / Wave">QuickBooks / Wave</button>
         <button class="cb" data-value="Manual PDF invoice">Manual PDF invoice</button>
         <button class="cb" data-value="Stripe / PayPal link">Stripe / PayPal link</button>
         <button class="cb" data-value="Cash / check / bank transfer">Cash / check / bank transfer</button>
+        <button class="cb" data-value="Other">Something else</button>
+      </div>
+      <div class="cond" id="invoicing-other">
+        <input type="text" data-key="invoicing_other" placeholder="How do you invoice clients?" />
       </div>
     </div>
 
@@ -391,13 +409,16 @@
 
     <div class="q">
       <p class="q-lbl">What do you edit in? Pick all that apply.</p>
-      <div class="choices" data-key="editing_software" data-type="multi">
+      <div class="choices" data-key="editing_software" data-type="multi" data-other="editing-other">
         <button class="cb" data-value="Lightroom">Lightroom</button>
         <button class="cb" data-value="Capture One">Capture One</button>
         <button class="cb" data-value="Photoshop">Photoshop</button>
         <button class="cb" data-value="VSCO / mobile apps">VSCO / mobile apps</button>
         <button class="cb" data-value="I outsource retouching">I outsource retouching</button>
         <button class="cb" data-value="Other">Other</button>
+      </div>
+      <div class="cond" id="editing-other">
+        <input type="text" data-key="editing_software_other" placeholder="What do you edit in?" />
       </div>
     </div>
 
@@ -451,12 +472,16 @@
 
     <div class="q">
       <p class="q-lbl">Have you tried to fix any of this before?</p>
-      <div class="choices" data-key="previous_attempts" data-type="multi">
+      <div class="choices" data-key="previous_attempts" data-type="multi" data-other="attempts-other">
         <button class="cb" data-value="Hired an assistant">Hired an assistant</button>
         <button class="cb" data-value="Bought a CRM or booking tool">Bought a CRM or booking tool</button>
         <button class="cb" data-value="Tried Zapier or Make.com">Tried Zapier or Make.com</button>
         <button class="cb" data-value="Watched YouTube tutorials and gave up">Watched YouTube tutorials and gave up</button>
         <button class="cb" data-value="Nothing yet">Nothing yet</button>
+        <button class="cb" data-value="Other">Something else</button>
+      </div>
+      <div class="cond" id="attempts-other">
+        <input type="text" data-key="previous_attempts_other" placeholder="What did you try?" />
       </div>
     </div>
 
@@ -610,9 +635,10 @@
       }
 
       var otherId = group.dataset.other;
-      if (otherId && typeof val === 'string') {
+      if (otherId) {
         var otherEl = document.getElementById(otherId);
-        if (otherEl) otherEl.classList.toggle('open', val === 'Other');
+        var isOtherSel = Array.isArray(val) ? val.indexOf('Other') !== -1 : val === 'Other';
+        if (otherEl) otherEl.classList.toggle('open', isOtherSel);
       }
     });
   }
@@ -646,6 +672,13 @@
       } else {
         btn.classList.toggle('sel');
         data[key] = Array.from(group.querySelectorAll('.cb.sel')).map(function (b) { return b.dataset.value; });
+
+        var otherId = group.dataset.other;
+        if (otherId) {
+          var otherEl = document.getElementById(otherId);
+          var isOtherSel = !!group.querySelector('.cb.sel[data-value="Other"]');
+          if (otherEl) otherEl.classList.toggle('open', isOtherSel);
+        }
       }
 
       save();
