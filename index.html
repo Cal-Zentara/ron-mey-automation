@@ -143,6 +143,43 @@
     /* MOBILE INTRO PHOTO */
     .intro-photo-mob { display: none; }
 
+    /* THEME TOGGLE */
+    #theme-toggle {
+      position: fixed; top: 12px; left: 20px; z-index: 200;
+      width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+      background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, background 0.2s; padding: 0;
+    }
+    #theme-toggle:hover { border-color: rgba(212,168,67,0.35); }
+    #theme-toggle svg { width: 14px; height: 14px; stroke: var(--muted); fill: none; stroke-width: 1.5; stroke-linecap: round; transition: stroke 0.2s; }
+    #theme-toggle:hover svg { stroke: var(--gold); }
+
+    /* LIGHT MODE */
+    body.light {
+      --bg: #f9f7f4;
+      --gold: #a97820;
+      --gold-l: #c08c2a;
+      --purple: #6b3db8;
+      --pink: #b83050;
+      --surface: #f0ede7;
+      --surface2: #e8e4dc;
+      --border: rgba(0,0,0,0.1);
+      --text: #111111;
+      --muted: rgba(17,17,17,0.44);
+    }
+    body.light .blob-a { opacity: 0.04; }
+    body.light .blob-b { opacity: 0.03; }
+    body.light .blob-c { opacity: 0.03; }
+    body.light .blob-d { opacity: 0.02; }
+    body.light #prog-track { background: rgba(0,0,0,0.06); }
+    body.light ::placeholder { color: rgba(17,17,17,0.22); }
+    body.light #toast { background: var(--surface2); }
+    body.light .intro-right::before { background: linear-gradient(to right, var(--bg) 0%, transparent 32%); }
+    body.light .suc-bg::after { background: radial-gradient(ellipse 70% 70% at 50% 45%, transparent 15%, var(--bg) 72%); }
+    body.light .intro-right img { filter: saturate(0.75) contrast(1.05); }
+    body.light .pfull img, body.light .ppair img { filter: saturate(0.82) contrast(1.04); }
+    body.light .suc-bg img { opacity: 0.12; }
+
     /* MOBILE */
     @media (max-width: 680px) {
       .intro-right { display: none; }
@@ -179,6 +216,10 @@
 <div id="prog-track"><div id="prog-fill"></div></div>
 <div id="prog-label" aria-hidden="true"></div>
 <div id="toast" aria-live="polite">✓ Progress saved</div>
+<button id="theme-toggle" aria-label="Toggle light/dark mode" onclick="toggleTheme()">
+  <svg id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <svg id="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+</button>
 
 <!-- ── INTRO ── -->
 <div id="s0" class="screen active">
@@ -571,6 +612,29 @@
 </div>
 
 <script>
+  // Theme toggle
+  (function () {
+    var stored = localStorage.getItem('ron-mey-theme');
+    if (stored === 'light') applyLight();
+    function applyLight() {
+      document.body.classList.add('light');
+      document.getElementById('icon-moon').style.display = 'none';
+      document.getElementById('icon-sun').style.display = '';
+    }
+    function applyDark() {
+      document.body.classList.remove('light');
+      document.getElementById('icon-moon').style.display = '';
+      document.getElementById('icon-sun').style.display = 'none';
+    }
+    window.toggleTheme = function () {
+      if (document.body.classList.contains('light')) {
+        applyDark(); localStorage.setItem('ron-mey-theme', 'dark');
+      } else {
+        applyLight(); localStorage.setItem('ron-mey-theme', 'light');
+      }
+    };
+  })();
+
 (function () {
   'use strict';
 
