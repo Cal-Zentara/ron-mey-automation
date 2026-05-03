@@ -140,15 +140,30 @@
     h2.suc-t { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; font-style: italic; color: var(--text); margin-bottom: 18px; }
     .suc-p { font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.75; }
 
+    /* MOBILE INTRO PHOTO */
+    .intro-photo-mob { display: none; }
+
     /* MOBILE */
     @media (max-width: 680px) {
       .intro-right { display: none; }
-      .intro-left { padding: 80px 24px 60px; }
-      h1.intro-h { font-size: 52px; }
+      .intro-left { padding: 60px 24px 52px; }
+      h1.intro-h { font-size: 48px; }
       .fsec { padding: 80px 20px 60px; }
       .pband { padding: 0 20px 52px; }
       .ppair img { height: auto; }
       .pfull img { height: auto; }
+
+      .intro-photo-mob {
+        display: block;
+        width: calc(100% + 48px);
+        margin: 28px -24px 0;
+      }
+      .intro-photo-mob img {
+        width: 100%;
+        height: auto;
+        display: block;
+        filter: saturate(0.85) contrast(1.08);
+      }
     }
   </style>
 </head>
@@ -180,6 +195,9 @@
         Get started
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
+      <div class="intro-photo-mob">
+        <img src="./RM4.png" alt="Ron Mey Studio">
+      </div>
     </div>
     <div class="intro-right">
       <img src="./RM4.png" alt="Ron Mey Studio">
