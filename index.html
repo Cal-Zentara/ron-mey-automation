@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ron Mey Studio — Automation Discovery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090909;
+      --gold: #d4a843;
+      --gold-l: #e2be72;
+      --purple: #8b52d4;
+      --pink: #d9506a;
+      --surface: #0f0f0f;
+      --surface2: #141414;
+      --border: rgba(255,255,255,0.07);
+      --text: #ede9e1;
+      --muted: rgba(237,233,225,0.46);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* BLOBS */
+    .blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(110px); }
+    .blob-a { width: 700px; height: 700px; background: var(--purple); opacity: 0.09; top: -280px; right: -180px; }
+    .blob-b { width: 480px; height: 480px; background: var(--pink); opacity: 0.07; bottom: 8%; left: -130px; }
+    .blob-c { width: 320px; height: 320px; background: var(--gold); opacity: 0.06; top: 52%; right: 18%; }
+    .blob-d { width: 220px; height: 220px; background: var(--purple); opacity: 0.05; bottom: 4%; right: 28%; }
+
+    /* PROGRESS */
+    #prog-track { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: rgba(255,255,255,0.05); z-index: 100; }
+    #prog-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--purple), var(--pink) 50%, var(--gold)); transition: width 0.45s cubic-bezier(0.4,0,0.2,1); }
+    #prog-label { position: fixed; top: 14px; right: 20px; z-index: 100; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); pointer-events: none; }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 26px; right: 26px; z-index: 200; padding: 10px 20px; background: var(--surface2); border: 1px solid rgba(212,168,67,0.35); border-radius: 100px; font-size: 12px; color: var(--gold); opacity: 0; transform: translateY(6px); transition: opacity 0.25s, transform 0.25s; pointer-events: none; }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* SCREENS */
+    .screen { display: none; position: relative; z-index: 1; }
+    .screen.active { display: block; }
+
+    /* INTRO */
+    #s0 { min-height: 100svh; }
+    #s0.active { display: flex; }
+
+    .intro-wrap { display: flex; min-height: 100svh; width: 100%; }
+    .intro-left { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 80px 72px; }
+    .intro-right { width: 43%; flex-shrink: 0; position: relative; overflow: hidden; }
+    .intro-right img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; filter: saturate(0.85) contrast(1.08); }
+    .intro-right::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, var(--bg) 0%, transparent 32%); z-index: 1; }
+
+    .intro-eye { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 32px; }
+
+    h1.intro-h { font-family: 'Cormorant Garamond', serif; font-size: clamp(54px, 7.5vw, 92px); font-weight: 300; line-height: 0.95; color: var(--text); margin-bottom: 6px; }
+    h1.intro-h em { font-style: italic; color: var(--gold); }
+
+    .intro-rule { width: 52px; height: 1px; margin: 30px 0; background: linear-gradient(90deg, var(--purple), var(--pink)); }
+
+    .intro-body { font-size: 15px; font-weight: 300; line-height: 1.8; color: var(--muted); max-width: 350px; margin-bottom: 52px; }
+    .intro-body strong { color: var(--text); font-weight: 400; }
+
+    /* FORM SECTION WRAPPER */
+    .fsec { min-height: 100svh; max-width: 700px; margin: 0 auto; padding: 88px 28px 80px; animation: rise 0.45s cubic-bezier(0.4,0,0.2,1) forwards; }
+    .fsec-np { padding-top: 0; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* PHOTO BANDS */
+    .pband { max-width: 700px; margin: 0 auto; padding: 0 28px 68px; animation: rise 0.45s cubic-bezier(0.4,0,0.2,1) forwards; }
+    .ppair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ppair img { width: 100%; height: 240px; object-fit: cover; display: block; border-radius: 1px; filter: saturate(0.9) contrast(1.06); }
+    .pfull img { width: 100%; height: 320px; object-fit: cover; object-position: center 25%; display: block; border-radius: 1px; filter: saturate(0.9) contrast(1.06); }
+
+    /* SECTION HEADER */
+    .s-tag { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 18px; }
+    h2.s-h { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 58px); font-weight: 300; line-height: 1.05; color: var(--text); margin-bottom: 14px; }
+    h2.s-h em { font-style: italic; color: var(--gold); }
+    .s-desc { font-size: 14px; font-weight: 300; line-height: 1.75; color: var(--muted); max-width: 480px; margin-bottom: 52px; }
+
+    /* QUESTIONS */
+    .q { margin-bottom: 44px; }
+    .q-lbl { font-size: 15px; font-weight: 400; color: var(--text); line-height: 1.55; margin-bottom: 16px; }
+
+    /* CHOICES */
+    .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cb { padding: 10px 20px; background: transparent; border: 1px solid var(--border); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; border-radius: 2px; cursor: pointer; transition: border-color 0.18s, color 0.18s, background 0.18s; line-height: 1.4; }
+    .cb:hover { border-color: rgba(212,168,67,0.28); color: var(--text); }
+    .cb.sel { background: rgba(212,168,67,0.09); border-color: var(--gold); color: var(--gold); }
+
+    /* INPUTS */
+    textarea, input[type="text"] { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 2px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300; line-height: 1.75; padding: 14px 18px; outline: none; resize: vertical; transition: border-color 0.18s; }
+    textarea { min-height: 96px; }
+    textarea:focus, input[type="text"]:focus { border-color: rgba(212,168,67,0.38); }
+    ::placeholder { color: rgba(237,233,225,0.22); }
+
+    /* CONDITIONAL REVEAL */
+    .cond { overflow: hidden; max-height: 0; opacity: 0; transition: max-height 0.38s ease, opacity 0.28s ease, margin-top 0.28s ease; margin-top: 0; }
+    .cond.open { max-height: 150px; opacity: 1; margin-top: 14px; }
+
+    /* NAV */
+    .nav-row { display: flex; align-items: center; justify-content: space-between; margin-top: 52px; padding-top: 26px; border-top: 1px solid var(--border); }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.06em; cursor: pointer; border: none; transition: all 0.18s; border-radius: 2px; }
+    .btn-gold { background: var(--gold); color: var(--bg); padding: 14px 36px; }
+    .btn-gold:hover { background: var(--gold-l); transform: translateY(-1px); }
+    .btn-gold:active { transform: none; }
+    .btn-gold:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .btn-ghost { background: transparent; color: var(--muted); padding: 14px 0; }
+    .btn-ghost:hover { color: var(--text); }
+
+    /* ERROR */
+    .err { display: none; font-size: 13px; color: var(--pink); margin-top: 18px; }
+    .err.show { display: block; }
+
+    /* SUCCESS */
+    #success { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; background: var(--bg); }
+    #success.active { display: flex; }
+    .suc-bg { position: absolute; inset: 0; overflow: hidden; }
+    .suc-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; opacity: 0.18; filter: saturate(0.7) contrast(1.1); }
+    .suc-bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 70% at 50% 45%, transparent 15%, #090909 72%); }
+    .suc-inner { position: relative; z-index: 1; text-align: center; padding: 40px 24px; max-width: 420px; animation: rise 0.6s ease forwards; }
+    .suc-mark { width: 54px; height: 54px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; margin: 0 auto 36px; background: rgba(212,168,67,0.07); }
+    .suc-mark svg { width: 20px; height: 20px; stroke: var(--gold); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    h2.suc-t { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 300; font-style: italic; color: var(--text); margin-bottom: 18px; }
+    .suc-p { font-size: 15px; font-weight: 300; color: var(--muted); line-height: 1.75; }
+
+    /* MOBILE */
+    @media (max-width: 680px) {
+      .intro-right { display: none; }
+      .intro-left { padding: 80px 24px 60px; }
+      h1.intro-h { font-size: 52px; }
+      .fsec { padding: 80px 20px 60px; }
+      .pband { padding: 0 20px 52px; }
+      .ppair img { height: 155px; }
+      .pfull img { height: 210px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="blobs" aria-hidden="true">
+  <div class="blob blob-a"></div>
+  <div class="blob blob-b"></div>
+  <div class="blob blob-c"></div>
+  <div class="blob blob-d"></div>
+</div>
+
+<div id="prog-track"><div id="prog-fill"></div></div>
+<div id="prog-label" aria-hidden="true"></div>
+<div id="toast" aria-live="polite">✓ Progress saved</div>
+
+<!-- ── INTRO ── -->
+<div id="s0" class="screen active">
+  <div class="intro-wrap">
+    <div class="intro-left">
+      <p class="intro-eye">Automation Discovery · Ron Mey Studio</p>
+      <h1 class="intro-h">Let's find<br>out what<br><em>breaks.</em></h1>
+      <div class="intro-rule"></div>
+      <p class="intro-body">
+        This covers how the studio works, where time disappears, and what would run better on its own.
+        <strong>About 10 minutes.</strong> Go at your own pace.
+      </p>
+      <button class="btn btn-gold" onclick="go(1)">
+        Get started
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="intro-right">
+      <img src="./RM4.png" alt="Ron Mey Studio">
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION 1 — THE STUDIO ── -->
+<div id="s1" class="screen">
+  <div class="fsec">
+    <p class="s-tag">Section 1 of 5 — The Studio</p>
+    <h2 class="s-h">Quick <em>overview</em></h2>
+    <p class="s-desc">Three questions. Just to understand the shape of the operation.</p>
+
+    <div class="q">
+      <p class="q-lbl">How many people work in or with the studio?</p>
+      <div class="choices" data-key="team_size" data-type="single">
+        <button class="cb" data-value="Just me">Just me</button>
+        <button class="cb" data-value="Me + 1–2 regulars">Me + 1–2 regulars</button>
+        <button class="cb" data-value="Small team (3–6)">Small team (3–6)</button>
+        <button class="cb" data-value="Larger crew">Larger crew</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">What types of work do you shoot? Pick all that apply.</p>
+      <div class="choices" data-key="shoot_types" data-type="multi">
+        <button class="cb" data-value="Fashion editorial">Fashion editorial</button>
+        <button class="cb" data-value="Commercial / brand">Commercial / brand</button>
+        <button class="cb" data-value="Portrait / headshots">Portrait / headshots</button>
+        <button class="cb" data-value="Campaign / lookbook">Campaign / lookbook</button>
+        <button class="cb" data-value="Events">Events</button>
+        <button class="cb" data-value="BTS / content">BTS / content</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">How did you hear about Cal?</p>
+      <div class="choices" data-key="referral_source" data-type="multi">
+        <button class="cb" data-value="Referral">Referral</button>
+        <button class="cb" data-value="TikTok">TikTok</button>
+        <button class="cb" data-value="Instagram">Instagram</button>
+        <button class="cb" data-value="Facebook">Facebook</button>
+        <button class="cb" data-value="Google">Google</button>
+        <button class="cb" data-value="Cold outreach">Cold outreach</button>
+        <button class="cb" data-value="Other">Other</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="go(0)">← Back</button>
+      <button class="btn btn-gold" onclick="go(2)">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION 2 — WHERE TIME GOES ── -->
+<div id="s2" class="screen">
+  <div class="pband">
+    <div class="ppair">
+      <img src="./RM5.png" alt="">
+      <img src="./RM6.png" alt="">
+    </div>
+  </div>
+  <div class="fsec fsec-np">
+    <p class="s-tag">Section 2 of 5 — Where Time Goes</p>
+    <h2 class="s-h">The work behind<br>the <em>work</em></h2>
+    <p class="s-desc">What actually happens between shoot day and a happy client?</p>
+
+    <div class="q">
+      <p class="q-lbl">Walk me through what happens after a shoot wraps — what do you do, in order, before a client gets their images?</p>
+      <textarea data-key="post_shoot_process" placeholder="Culling, editing, exporting, sending a gallery link..."></textarea>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">How long does it typically take from shoot day to final delivery?</p>
+      <div class="choices" data-key="delivery_timeline" data-type="single">
+        <button class="cb" data-value="Same day / 24hrs">Same day / 24hrs</button>
+        <button class="cb" data-value="2–5 days">2–5 days</button>
+        <button class="cb" data-value="1–2 weeks">1–2 weeks</button>
+        <button class="cb" data-value="Longer — depends on the project">Longer — depends on the project</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">Where in that process does time actually disappear?</p>
+      <textarea data-key="time_sink" placeholder="Culling takes forever, clients sit on approvals for weeks, I keep forgetting to send invoices..."></textarea>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">Where do things fall through the cracks? Pick all that apply.</p>
+      <div class="choices" data-key="breakdown_areas" data-type="multi">
+        <button class="cb" data-value="Following up with leads">Following up with leads</button>
+        <button class="cb" data-value="Client communication mid-project">Client communication mid-project</button>
+        <button class="cb" data-value="Getting contracts signed">Getting contracts signed</button>
+        <button class="cb" data-value="Sending invoices">Sending invoices</button>
+        <button class="cb" data-value="Chasing unpaid invoices">Chasing unpaid invoices</button>
+        <button class="cb" data-value="Delivering galleries on time">Delivering galleries on time</button>
+        <button class="cb" data-value="Organizing files post-shoot">Organizing files post-shoot</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">What's one thing you've been meaning to fix for months — but it keeps getting pushed?</p>
+      <textarea data-key="overdue_fix" placeholder="That thing you always think 'I really need to sort that out'..."></textarea>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="go(1)">← Back</button>
+      <button class="btn btn-gold" onclick="go(3)">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION 3 — YOUR TOOLS ── -->
+<div id="s3" class="screen">
+  <div class="pband">
+    <div class="ppair">
+      <img src="./RM1.png" alt="">
+      <img src="./RM2.png" alt="">
+    </div>
+  </div>
+  <div class="fsec fsec-np">
+    <p class="s-tag">Section 3 of 5 — Your Tools</p>
+    <h2 class="s-h">What you're<br>already <em>using</em></h2>
+    <p class="s-desc">How it all connects — or where it doesn't.</p>
+
+    <div class="q">
+      <p class="q-lbl">How do you manage bookings and client enquiries right now?</p>
+      <div class="choices" data-key="booking_method" data-type="single">
+        <button class="cb" data-value="Email and DMs — all manual">Email and DMs — all manual</button>
+        <button class="cb" data-value="Booking software (HoneyBook, Dubsado, etc.)">Booking software (HoneyBook, Dubsado, etc.)</button>
+        <button class="cb" data-value="Spreadsheet or Notion">Spreadsheet or Notion</button>
+        <button class="cb" data-value="Nothing formal">Nothing formal</button>
+        <button class="cb" data-value="My agent handles enquiries">My agent handles enquiries</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">How do clients receive their final images? Pick all that apply.</p>
+      <div class="choices" data-key="delivery_method" data-type="multi">
+        <button class="cb" data-value="Pixieset">Pixieset</button>
+        <button class="cb" data-value="Google Drive / Dropbox">Google Drive / Dropbox</button>
+        <button class="cb" data-value="WeTransfer">WeTransfer</button>
+        <button class="cb" data-value="ShootProof / CloudSpot">ShootProof / CloudSpot</button>
+        <button class="cb" data-value="Direct email">Direct email</button>
+        <button class="cb" data-value="Something else">Something else</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">How do you handle contracts?</p>
+      <div class="choices" data-key="contracts" data-type="multi">
+        <button class="cb" data-value="HoneyBook / Dubsado">HoneyBook / Dubsado</button>
+        <button class="cb" data-value="DocuSign / HelloSign">DocuSign / HelloSign</button>
+        <button class="cb" data-value="PDF via email">PDF via email</button>
+        <button class="cb" data-value="No formal contract">No formal contract</button>
+        <button class="cb" data-value="Agent / team handles it">Agent / team handles it</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">How do you invoice and get paid?</p>
+      <div class="choices" data-key="invoicing" data-type="multi">
+        <button class="cb" data-value="HoneyBook / Dubsado">HoneyBook / Dubsado</button>
+        <button class="cb" data-value="QuickBooks / Wave">QuickBooks / Wave</button>
+        <button class="cb" data-value="Manual PDF invoice">Manual PDF invoice</button>
+        <button class="cb" data-value="Stripe / PayPal link">Stripe / PayPal link</button>
+        <button class="cb" data-value="Cash / check / bank transfer">Cash / check / bank transfer</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">Do your tools actually talk to each other, or are you copying things between them manually?</p>
+      <div class="choices" data-key="tool_integration" data-type="single">
+        <button class="cb" data-value="They're connected — things flow">They're connected — things flow</button>
+        <button class="cb" data-value="A few connect, most is manual">A few connect, most is manual</button>
+        <button class="cb" data-value="Everything is manual">Everything is manual</button>
+        <button class="cb" data-value="Not sure">Not sure</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">What do you edit in? Pick all that apply.</p>
+      <div class="choices" data-key="editing_software" data-type="multi">
+        <button class="cb" data-value="Lightroom">Lightroom</button>
+        <button class="cb" data-value="Capture One">Capture One</button>
+        <button class="cb" data-value="Photoshop">Photoshop</button>
+        <button class="cb" data-value="VSCO / mobile apps">VSCO / mobile apps</button>
+        <button class="cb" data-value="I outsource retouching">I outsource retouching</button>
+        <button class="cb" data-value="Other">Other</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="go(2)">← Back</button>
+      <button class="btn btn-gold" onclick="go(4)">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION 4 — WHAT YOU WANT FIXED ── -->
+<div id="s4" class="screen">
+  <div class="pband">
+    <div class="pfull">
+      <img src="./RM3.png" alt="">
+    </div>
+  </div>
+  <div class="fsec fsec-np">
+    <p class="s-tag">Section 4 of 5 — What You Want Fixed</p>
+    <h2 class="s-h">Let's get<br><em>specific</em></h2>
+    <p class="s-desc">What would you actually want automated — and what's it costing you?</p>
+
+    <div class="q">
+      <p class="q-lbl">Do you already have a specific automation in mind?</p>
+      <div class="choices" data-key="automation_in_mind" data-type="single" data-reveal="auto-detail">
+        <button class="cb" data-value="Yes — I know exactly what I want">Yes — I know exactly what I want</button>
+        <button class="cb" data-value="Sort of — I have a rough idea">Sort of — I have a rough idea</button>
+        <button class="cb" data-value="No — just know something needs to change">No — just know something needs to change</button>
+      </div>
+      <div class="cond" id="auto-detail">
+        <textarea data-key="automation_detail" placeholder="Describe it — what triggers it, what should happen, which tools are involved..."></textarea>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">If one part of your workflow ran completely on autopilot, what would make the biggest difference?</p>
+      <textarea data-key="autopilot_vision" placeholder="After a shoot, the gallery goes out with an invoice automatically... clients book and get a contract without me touching it..."></textarea>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">Roughly how many hours a week go to admin, follow-ups, and repetitive tasks?</p>
+      <div class="choices" data-key="admin_hours" data-type="single">
+        <button class="cb" data-value="Under 3 hours">Under 3 hours</button>
+        <button class="cb" data-value="3–7 hours">3–7 hours</button>
+        <button class="cb" data-value="7–15 hours">7–15 hours</button>
+        <button class="cb" data-value="More than 15 hours">More than 15 hours</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">Have you tried to fix any of this before?</p>
+      <div class="choices" data-key="previous_attempts" data-type="multi">
+        <button class="cb" data-value="Hired an assistant">Hired an assistant</button>
+        <button class="cb" data-value="Bought a CRM or booking tool">Bought a CRM or booking tool</button>
+        <button class="cb" data-value="Tried Zapier or Make.com">Tried Zapier or Make.com</button>
+        <button class="cb" data-value="Watched YouTube tutorials and gave up">Watched YouTube tutorials and gave up</button>
+        <button class="cb" data-value="Nothing yet">Nothing yet</button>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="go(3)">← Back</button>
+      <button class="btn btn-gold" onclick="go(5)">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION 5 — WRAP UP ── -->
+<div id="s5" class="screen">
+  <div class="fsec">
+    <p class="s-tag">Section 5 of 5 — Wrap Up</p>
+    <h2 class="s-h">Almost <em>done</em></h2>
+    <p class="s-desc">Last few questions and we're finished.</p>
+
+    <div class="q">
+      <p class="q-lbl">Is there a gap in how you operate that's quietly costing you — time, money, or energy?</p>
+      <textarea data-key="operational_gap" placeholder="Something that feels obvious in hindsight but you haven't had time to address..."></textarea>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">What's your #1 goal for the studio over the next 90 days?</p>
+      <textarea data-key="goal_90_days" placeholder="More bookings, higher rates, less time on admin..."></textarea>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">What's your budget range for getting this sorted?</p>
+      <div class="choices" data-key="budget" data-type="single">
+        <button class="cb" data-value="Under $500">Under $500</button>
+        <button class="cb" data-value="$500–$2k">$500–$2k</button>
+        <button class="cb" data-value="$2k–$5k">$2k–$5k</button>
+        <button class="cb" data-value="$5k+">$5k+</button>
+        <button class="cb" data-value="Not sure yet">Not sure yet</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">How soon do you need this working?</p>
+      <div class="choices" data-key="timeline" data-type="single">
+        <button class="cb" data-value="ASAP">ASAP</button>
+        <button class="cb" data-value="Within a month">Within a month</button>
+        <button class="cb" data-value="1–3 months">1–3 months</button>
+        <button class="cb" data-value="No rush">No rush</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <p class="q-lbl">Anything else I should know?</p>
+      <textarea data-key="anything_else" placeholder="Anything you didn't get to say..."></textarea>
+    </div>
+
+    <p id="err-msg" class="err">Something went wrong — please try again or email cal.zentara@gmail.com</p>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="go(4)">← Back</button>
+      <button class="btn btn-gold" id="submit-btn" onclick="submitForm()">Submit →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SUCCESS ── -->
+<div id="success">
+  <div class="suc-bg">
+    <img src="./RM4.png" alt="">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 72% 72% at 50% 44%, transparent 14%, #090909 70%);"></div>
+  </div>
+  <div class="suc-inner">
+    <div class="suc-mark">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 class="suc-t">You're done.</h2>
+    <p class="suc-p">Cal will look through your answers and reach out within 24 hours. You're in good hands.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var SAVE_KEY  = 'ron-mey-automation-discovery';
+  var CLIENT    = 'Ron Mey Studio';
+  var FORM_TYPE = 'automation-discovery';
+  var SECTIONS  = 5;
+  var FORMSPREE = 'https://formspree.io/f/xvzvnkay';
+  var WEBHOOK   = 'https://api.elevasis.io/api/webhooks/inbound/wh_8fd8e08c5275cdd67d5d620ee79ef2a9';
+
+  var current = 0;
+  var data = {};
+
+  try { data = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); } catch (_) {}
+
+  function save() {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch (_) {}
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(function () { t.classList.remove('show'); }, 2000);
+  }
+
+  function updateProgress() {
+    var pct = current === 0 ? 0 : Math.round((current / SECTIONS) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = current > 0
+      ? 'Section ' + current + ' of ' + SECTIONS + ' · ' + pct + '%'
+      : '';
+  }
+
+  window.go = function (n) {
+    document.querySelectorAll('.screen').forEach(function (el) { el.classList.remove('active'); });
+    var target = document.getElementById('s' + n);
+    if (!target) return;
+    target.classList.add('active');
+    current = n;
+    updateProgress();
+    restoreSection(target);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  function restoreSection(sec) {
+    sec.querySelectorAll('textarea[data-key], input[data-key]').forEach(function (el) {
+      el.value = data[el.dataset.key] != null ? data[el.dataset.key] : '';
+    });
+
+    sec.querySelectorAll('.choices[data-key]').forEach(function (group) {
+      var key = group.dataset.key;
+      var val = data[key];
+      if (val == null) return;
+      var vals = Array.isArray(val) ? val : [val];
+      group.querySelectorAll('.cb').forEach(function (btn) {
+        btn.classList.toggle('sel', vals.indexOf(btn.dataset.value) !== -1);
+      });
+
+      var revealId = group.dataset.reveal;
+      if (revealId && typeof val === 'string') {
+        var open = val.charAt(0) === 'Y' || val.charAt(0) === 'S';
+        var el = document.getElementById(revealId);
+        if (el) el.classList.toggle('open', open);
+      }
+    });
+  }
+
+  document.querySelectorAll('.choices').forEach(function (group) {
+    group.addEventListener('click', function (e) {
+      var btn = e.target.closest('.cb');
+      if (!btn) return;
+
+      var key  = group.dataset.key;
+      var type = group.dataset.type;
+      var val  = btn.dataset.value;
+
+      if (type === 'single') {
+        group.querySelectorAll('.cb').forEach(function (b) { b.classList.remove('sel'); });
+        btn.classList.add('sel');
+        data[key] = val;
+
+        var revealId = group.dataset.reveal;
+        if (revealId) {
+          var open = val.charAt(0) === 'Y' || val.charAt(0) === 'S';
+          var el = document.getElementById(revealId);
+          if (el) el.classList.toggle('open', open);
+        }
+      } else {
+        btn.classList.toggle('sel');
+        data[key] = Array.from(group.querySelectorAll('.cb.sel')).map(function (b) { return b.dataset.value; });
+      }
+
+      save();
+    });
+  });
+
+  document.querySelectorAll('textarea[data-key], input[data-key]').forEach(function (el) {
+    el.addEventListener('input', function () {
+      data[el.dataset.key] = el.value;
+      save();
+    });
+  });
+
+  window.submitForm = async function () {
+    var btn   = document.getElementById('submit-btn');
+    var errEl = document.getElementById('err-msg');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    errEl.classList.remove('show');
+
+    var payload = Object.assign({}, data, { client_name: CLIENT, form_type: FORM_TYPE });
+
+    var fd = new FormData();
+    Object.keys(payload).forEach(function (k) {
+      var v = payload[k];
+      fd.append(k, Array.isArray(v) ? v.join(', ') : String(v != null ? v : ''));
+    });
+
+    var c1 = new AbortController();
+    var c2 = new AbortController();
+    var t1 = setTimeout(function () { c1.abort(); }, 12000);
+    var t2 = setTimeout(function () { c2.abort(); }, 12000);
+
+    var results = await Promise.allSettled([
+      fetch(FORMSPREE, { method: 'POST', headers: { 'Accept': 'application/json' }, body: fd, signal: c1.signal }),
+      fetch(WEBHOOK,   { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: c2.signal }),
+    ]);
+
+    clearTimeout(t1);
+    clearTimeout(t2);
+
+    var fsOk = results[0].status === 'fulfilled' && results[0].value.ok;
+
+    if (fsOk) {
+      try { localStorage.removeItem(SAVE_KEY); } catch (_) {}
+      document.getElementById('success').classList.add('active');
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Submit →';
+      errEl.classList.add('show');
+    }
+  };
+
+  updateProgress();
+})();
+</script>
+</body>
+</html>
