@@ -332,12 +332,16 @@
 
     <div class="q">
       <p class="q-lbl">How do you manage bookings and client enquiries right now?</p>
-      <div class="choices" data-key="booking_method" data-type="single">
+      <div class="choices" data-key="booking_method" data-type="single" data-other="booking-other">
         <button class="cb" data-value="Email and DMs — all manual">Email and DMs — all manual</button>
         <button class="cb" data-value="Booking software (HoneyBook, Dubsado, etc.)">Booking software (HoneyBook, Dubsado, etc.)</button>
         <button class="cb" data-value="Spreadsheet or Notion">Spreadsheet or Notion</button>
         <button class="cb" data-value="Nothing formal">Nothing formal</button>
         <button class="cb" data-value="My agent handles enquiries">My agent handles enquiries</button>
+        <button class="cb" data-value="Other">Something else</button>
+      </div>
+      <div class="cond" id="booking-other">
+        <input type="text" data-key="booking_method_other" placeholder="What do you use?" />
       </div>
     </div>
 
@@ -604,6 +608,12 @@
         var el = document.getElementById(revealId);
         if (el) el.classList.toggle('open', open);
       }
+
+      var otherId = group.dataset.other;
+      if (otherId && typeof val === 'string') {
+        var otherEl = document.getElementById(otherId);
+        if (otherEl) otherEl.classList.toggle('open', val === 'Other');
+      }
     });
   }
 
@@ -626,6 +636,12 @@
           var open = val.charAt(0) === 'Y' || val.charAt(0) === 'S';
           var el = document.getElementById(revealId);
           if (el) el.classList.toggle('open', open);
+        }
+
+        var otherId = group.dataset.other;
+        if (otherId) {
+          var otherEl = document.getElementById(otherId);
+          if (otherEl) otherEl.classList.toggle('open', val === 'Other');
         }
       } else {
         btn.classList.toggle('sel');
